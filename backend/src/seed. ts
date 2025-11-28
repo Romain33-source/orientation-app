@@ -1,0 +1,270 @@
+import { DataSource } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { User, UserRole } from './users/entities/user.entity';
+import { Profession } from './professions/entities/profession.entity';
+import { Quiz } from './quiz/entities/quiz.entity';
+
+const AppDataSource = new DataSource({
+  type: 'postgres',
+  host: process.env.DATABASE_HOST || 'localhost',
+  port: parseInt(process.env.DATABASE_PORT) || 5432,
+  username: process.env.DATABASE_USER || 'postgres',
+  password: process.env.DATABASE_PASSWORD || 'password',
+  database: process.env.DATABASE_NAME || 'orientation_db',
+  entities: [User, Profession, Quiz, __dirname + '/**/*.entity{.ts,.js}'],
+  synchronize: true,
+});
+
+async function seed() {
+  console.log('🌱 Début du seed...');
+
+  await AppDataSource.initialize();
+  console.log('✅ Connexion à la base de données établie');
+
+  const userRepo = AppDataSource.getRepository(User);
+  const professionRepo = AppDataSource.getRepository(Profession);
+  const quizRepo = AppDataSource.getRepository(Quiz);
+
+  // 1. Créer les utilisateurs
+  console. log('👤 Création des utilisateurs.. .');
+  
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
+  const eleve = await userRepo.save({
+    email: 'eleve@test.fr',
+    password: hashedPassword,
+    firstName: 'Lucas',
+    lastName: 'Martin',
+    role: UserRole. ELEVE,
+    classe: '3ème',
+    etablissement: 'Collège Victor Hugo',
+  });
+
+  const parent = await userRepo.save({
+    email: 'parent@test.fr',
+    password: hashedPassword,
+    firstName: 'Sophie',
+    lastName: 'Martin',
+    role: UserRole. PARENT,
+  });
+
+  const pro = await userRepo.save({
+    email: 'pro@test.fr',
+    password: hashedPassword,
+    firstName: 'Jean',
+    lastName: 'Dupont',
+    role: UserRole.PROFESSIONNEL,
+    profession: 'Développeur Web',
+  });
+
+  console.log('✅ 3 utilisateurs créés');
+
+  // 2. Créer les professions
+  console.log('💼 Création des professions.. .');
+
+  const professions = [
+    {
+      titre: 'Développeur Web',
+      description: 'Conçoit et développe des sites web et applications.  Maîtrise les langages de programmation.',
+      competencesRequises: 'HTML, CSS, JavaScript, Problem solving, Logique',
+      formations: 'Bac+2 à Bac+5 en informatique, École 42, OpenClassrooms',
+      salaireMin: 30000,
+      salaireMax: 55000,
+      secteurs: ['Informatique', 'Digital', 'Tech'],
+      interets: ['scientifique', 'technique', 'logique'],
+    },
+    {
+      titre: 'Infirmier(ère)',
+      description: 'Soigne et accompagne les patients. Travaille en hôpital, clinique ou à domicile.',
+      competencesRequises: 'Empathie, Résistance au stress, Rigueur, Communication',
+      formations: 'Diplôme d\'État d\'Infirmier (Bac+3)',
+      salaireMin: 25000,
+      salaireMax: 40000,
+      secteurs: ['Santé', 'Social'],
+      interets: ['social', 'aide', 'scientifique'],
+    },
+    {
+      titre: 'Architecte',
+      description: 'Conçoit des bâtiments et supervise leur construction. Allie créativité et technique.',
+      competencesRequises: 'Dessin, Créativité, Mathématiques, Gestion de projet',
+      formations: 'Bac+5 École d\'Architecture',
+      salaireMin: 28000,
+      salaireMax: 60000,
+      secteurs: ['BTP', 'Design', 'Urbanisme'],
+      interets: ['artistique', 'technique', 'scientifique'],
+    },
+    {
+      titre: 'Chef Cuisinier',
+      description: 'Dirige une cuisine, crée des plats et manage une équipe. Passion et créativité.',
+      competencesRequises: 'Créativité culinaire, Management, Résistance physique',
+      formations: 'CAP Cuisine, BP, Mention Complémentaire',
+      salaireMin: 22000,
+      salaireMax: 45000,
+      secteurs: ['Hôtellerie-Restauration', 'Gastronomie'],
+      interets: ['artistique', 'manuel', 'entrepreneurial'],
+    },
+    {
+      titre: 'Professeur des Écoles',
+      description: 'Enseigne toutes les matières aux élèves de maternelle et primaire.',
+      competencesRequises: 'Pédagogie, Patience, Communication, Culture générale',
+      formations: 'Master MEEF + Concours CRPE',
+      salaireMin: 26000,
+      salaireMax: 38000,
+      secteurs: ['Éducation', 'Enseignement'],
+      interets: ['social', 'enseignement', 'communication'],
+    },
+    {
+      titre: 'Mécanicien Automobile',
+      description: 'Répare et entretient les véhicules. Diagnostique les pannes.',
+      competencesRequises: 'Mécanique, Dextérité, Diagnostic, Précision',
+      formations: 'CAP, Bac Pro Maintenance véhicules',
+      salaireMin: 20000,
+      salaireMax: 35000,
+      secteurs: ['Automobile', 'Maintenance'],
+      interets: ['technique', 'manuel', 'logique'],
+    },
+    {
+      titre: 'Graphiste Designer',
+      description: 'Crée des visuels pour supports print et web. Identité visuelle de marques.',
+      competencesRequises: 'Créativité, Maîtrise logiciels PAO, Sens artistique',
+      formations: 'BTS Design Graphique, École d\'Art',
+      salaireMin: 24000,
+      salaireMax: 42000,
+      secteurs: ['Communication', 'Design', 'Digital'],
+      interets: ['artistique', 'créatif', 'visuel'],
+    },
+    {
+      titre: 'Éducateur Spécialisé',
+      description: 'Accompagne personnes en difficulté sociale ou handicap.',
+      competencesRequises: 'Empathie, Écoute, Pédagogie, Patience',
+      formations: 'Diplôme d\'État d\'Éducateur Spécialisé (Bac+3)',
+      salaireMin: 24000,
+      salaireMax: 35000,
+      secteurs: ['Social', 'Éducation'],
+      interets: ['social', 'aide', 'communication'],
+    },
+    {
+      titre: 'Vétérinaire',
+      description: 'Soigne les animaux domestiques et d\'élevage. Chirurgie et consultations.',
+      competencesRequises: 'Biologie, Chirurgie, Empathie, Rigueur scientifique',
+      formations: 'Bac+7 École Nationale Vétérinaire',
+      salaireMin: 30000,
+      salaireMax: 70000,
+      secteurs: ['Santé animale', 'Élevage'],
+      interets: ['scientifique', 'animaux', 'aide'],
+    },
+    {
+      titre: 'Journaliste',
+      description: 'Enquête, rédige et diffuse des informations pour différents médias.',
+      competencesRequises: 'Écriture, Curiosité, Investigation, Communication',
+      formations: 'École de Journalisme, Master',
+      salaireMin: 24000,
+      salaireMax: 50000,
+      secteurs: ['Médias', 'Communication', 'Presse'],
+      interets: ['communication', 'écriture', 'investigation'],
+    },
+    {
+      titre: 'Électricien',
+      description: 'Installe et entretient les installations électriques.',
+      competencesRequises: 'Électricité, Sécurité, Lecture de plans, Précision',
+      formations: 'CAP Électricien, Bac Pro MELEC',
+      salaireMin: 22000,
+      salaireMax: 38000,
+      secteurs: ['BTP', 'Énergie'],
+      interets: ['technique', 'manuel', 'logique'],
+    },
+    {
+      titre: 'Psychologue',
+      description: 'Accompagne les personnes en souffrance psychologique.',
+      competencesRequises: 'Écoute, Empathie, Analyse, Discrétion',
+      formations: 'Master en Psychologie (Bac+5)',
+      salaireMin: 26000,
+      salaireMax: 45000,
+      secteurs: ['Santé', 'Social'],
+      interets: ['social', 'aide', 'écoute'],
+    },
+    {
+      titre: 'Commercial',
+      description: 'Vend des produits ou services.  Développe un portefeuille clients.',
+      competencesRequises: 'Communication, Persuasion, Négociation, Dynamisme',
+      formations: 'BTS Commerce, Licence, École de Commerce',
+      salaireMin: 24000,
+      salaireMax: 60000,
+      secteurs: ['Commerce', 'Vente'],
+      interets: ['communication', 'relationnel', 'entrepreneurial'],
+    },
+    {
+      titre: 'Data Scientist',
+      description: 'Analyse de grandes quantités de données pour aider à la décision.',
+      competencesRequises: 'Mathématiques, Statistiques, Python, Machine Learning',
+      formations: 'Bac+5 Mathématiques, Informatique, Data Science',
+      salaireMin: 38000,
+      salaireMax: 65000,
+      secteurs: ['Informatique', 'Data', 'Tech'],
+      interets: ['scientifique', 'logique', 'analytique'],
+    },
+    {
+      titre: 'Pâtissier',
+      description: 'Crée gâteaux, viennoiseries et desserts.  Art et précision.',
+      competencesRequises: 'Créativité, Précision, Dextérité, Sens du goût',
+      formations: 'CAP Pâtissier, BTM',
+      salaireMin: 20000,
+      salaireMax: 40000,
+      secteurs: ['Artisanat', 'Gastronomie'],
+      interets: ['artistique', 'manuel', 'créatif'],
+    },
+  ];
+
+  for (const profData of professions) {
+    await professionRepo.save({ ...profData, createdBy: pro.id });
+  }
+
+  console.log(`✅ ${professions.length} professions créées`);
+
+  // 3. Créer le quiz
+  console.log('📝 Création du quiz...');
+
+  const quiz = await quizRepo.save({
+    titre: 'Quiz d\'Orientation - Découvre tes intérêts',
+    description: 'Ce quiz t\'aide à identifier tes centres d\'intérêt pour mieux choisir ton orientation.',
+    isActive: true,
+    questions: [
+      { id: 'q1', question: 'J\'aime résoudre des problèmes mathématiques', interet: 'scientifique', type: 'echelle' },
+      { id: 'q2', question: 'Je préfère créer des choses avec mes mains', interet: 'manuel', type: 'echelle' },
+      { id: 'q3', question: 'J\'adore dessiner et créer des designs', interet: 'artistique', type: 'echelle' },
+      { id: 'q4', question: 'Aider les autres me motive', interet: 'social', type: 'echelle' },
+      { id: 'q5', question: 'J\'aime comprendre comment les choses fonctionnent', interet: 'technique', type: 'echelle' },
+      { id: 'q6', question: 'Je suis à l\'aise pour parler en public', interet: 'communication', type: 'echelle' },
+      { id: 'q7', question: 'Les expériences scientifiques me passionnent', interet: 'scientifique', type: 'echelle' },
+      { id: 'q8', question: 'Je préfère les activités physiques et sportives', interet: 'sportif', type: 'echelle' },
+      { id: 'q9', question: 'J\'aime écrire des histoires ou articles', interet: 'écriture', type: 'echelle' },
+      { id: 'q10', question: 'Monter mon entreprise m\'intéresse', interet: 'entrepreneurial', type: 'echelle' },
+      { id: 'q11', question: 'Je suis fasciné par les animaux', interet: 'animaux', type: 'echelle' },
+      { id: 'q12', question: 'J\'aime analyser des données et statistiques', interet: 'analytique', type: 'echelle' },
+      { id: 'q13', question: 'La musique est une passion pour moi', interet: 'musical', type: 'echelle' },
+      { id: 'q14', question: 'Réparer des objets me plaît', interet: 'technique', type: 'echelle' },
+      { id: 'q15', question: 'Je m\'intéresse à la politique et société', interet: 'social', type: 'echelle' },
+      { id: 'q16', question: 'Programmer un ordinateur m\'attire', interet: 'logique', type: 'echelle' },
+      { id: 'q17', question: 'J\'aime cuisiner et expérimenter', interet: 'créatif', type: 'echelle' },
+      { id: 'q18', question: 'Enseigner aux autres me plaît', interet: 'enseignement', type: 'echelle' },
+      { id: 'q19', question: 'Je préfère le travail d\'équipe', interet: 'relationnel', type: 'echelle' },
+      { id: 'q20', question: 'Les enquêtes et investigations m\'intéressent', interet: 'investigation', type: 'echelle' },
+    ],
+  });
+
+  console.log('✅ Quiz créé');
+
+  console.log('\n🎉 SEED TERMINÉ !\n');
+  console.log('📧 Comptes créés :');
+  console.log('   - eleve@test.fr / password123');
+  console.log('   - parent@test.fr / password123');
+  console. log('   - pro@test. fr / password123\n');
+
+  await AppDataSource.destroy();
+  process.exit(0);
+}
+
+seed().catch((error) => {
+  console.error('❌ Erreur lors du seed:', error);
+  process.exit(1);
+});
