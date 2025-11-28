@@ -1,0 +1,43 @@
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+
+@Entity('professions')
+export class Profession {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  titre: string;
+
+  @Column('text')
+  description: string;
+
+  @Column('text')
+  competencesRequises: string;
+
+  @Column('text')
+  formations: string;
+
+  @Column({ nullable: true })
+  salaireMin?: number;
+
+  @Column({ nullable: true })
+  salaireMax?: number;
+
+  @Column('simple-array')
+  secteurs: string[];
+
+  @Column('simple-array', { nullable: true })
+  interets?: string[];
+
+  @Column({ nullable: true })
+  videoUrl?: string;
+
+  @Column({ default: 0 })
+  vuesCount: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ type: 'uuid' })
+  createdBy: string;
+}
